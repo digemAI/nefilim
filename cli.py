@@ -12,16 +12,15 @@ from data.schema import CheckIn
 from data.storage import load_checkins, save_checkins
 
 
-# Logger used in this CLI
-
+# CLI diagnostics
 def _ask_float(
     prompt: str,
     min_v: float | None = None,
     max_v: float | None = None
 ) -> float:
     """
-    Keeps asking for a number until the user enters a valid one.
-    Respects min/max limits if they are defined.
+    Prompts until a valid float is entered.
+    Applies optional min/max bounds.
     """
     while True:
         raw = input(prompt).strip()
@@ -47,12 +46,12 @@ def _ask_float(
 
 def _ask_text(prompt: str, max_len: int = 500) -> str:
     """
-    Prompts the user for free text input.
-    Truncates input if it exceeds max_len.
+    Prompts for text input.
+    Cuts extra characters if too long.
     """
     txt = input(prompt).strip()
 
-    # Prevent oversized entries
+    # Limit text lengh
     if len(txt) > max_len:
         txt = txt[:max_len]
 
@@ -61,18 +60,18 @@ def _ask_text(prompt: str, max_len: int = 500) -> str:
 
 def run() -> None:
     """
-    Main CLI entry point.
+    CLI entry point.
 
-    Workflow:
+    flow:
     1. Collect user input
-    2. Build CheckIn object
+    2. Create record
     3. Validate input
-    4. Persist to storage
-    5. Detect psychological state
+    4. Save to storage
+    5. Detect current state
     """
-    log.info("NEFILIM CLI - Nuevo check-in")
+    log.info("NEFILIM CLI - Nuevo registro")
 
-    # ---- Collect user metrics ----
+    # Collect user inputs
     sleep_hours = _ask_float("Horas de sueño (0-16): ", 0, 16)
     mood = _ask_float("Ánimo (0-10): ", 0, 10)
     anxiety = _ask_float("Ansiedad (0-10): ", 0, 10)
@@ -80,7 +79,7 @@ def run() -> None:
     focus = _ask_float("Enfoque (0-10): ", 0, 10)
     notes = _ask_text("Notas (opcional, max 500 chars): ")
 
-    # ---- Construct domain object ----
+    # Construct record object
     checkin = CheckIn(
         timestamp=datetime.now().isoformat(timespec="seconds"),
         sleep_hours=sleep_hours,
@@ -91,29 +90,29 @@ def run() -> None:
         notes=notes,
     )
 
-    # ---- Validation layer ----
+    # Validate user input
     ok, errors = validate_checkin(checkin)
     if not ok:
-        log.info("Check-in inválido. Errores:")
+        log.info("Entrada inválido. Errores:")
         for e in errors:
             print(f"- {e}")
         return
 
-    # ---- Persistence layer ----
+    # Update stored history
     history = load_checkins(DEFAULT_STORAGE_PATH)
     history.append(checkin)
     save_checkins(DEFAULT_STORAGE_PATH, history)
 
-    # ---- State detection (core logic) ----
+    # Detect current state
     state, details = detect_state(checkin)
 
     log.info(f"Estado detectado: {state}")
 
-    # Optional explanation from detector
+    # Print details (if any)
     if details:
         print(details)
 
 
 if __name__ == "__main__":
-    # Execute CLI only when run directly
+    # Run CLI when executed directly
     run()

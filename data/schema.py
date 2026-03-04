@@ -1,4 +1,4 @@
-# defines the canonical structure of a nefilim check-in record
+# Record structure
 
 CHECKIN_FIELDS = [
     "timestamp",

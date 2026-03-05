@@ -4,66 +4,66 @@ import config
 @dataclass(frozen=True)
 class StateResult:
     """
-    represents the result of the state detection process.
+    Result of the state detector.
     """
     state: str      # "stable" | "warning" | "risk"
-    reason: str     # explanation of why the state was triggered
+    reason: str     # short explanation of the decision
 
 
 def detect_state(sleep_hours: float, stress: int, anxiety: int) -> StateResult:
     """
-    determines the system state based on predefined thresholds.
+    Detect system state from input metrics.
     """
 
     # risk conditions (highest priority)
 
-    # sleep below critical threshold
+    # sleep below safe level
     if sleep_hours < config.RISK_SLEEP_THRESHOLD:
         return StateResult(
             "risk",
-            "critical sleep deficit detected"
+            "sleep critically low"
         )
 
-    # stress at or above critical threshold
+    # stress dangerously high
     if stress >= config.RISK_STRESS_THRESHOLD:
         return StateResult(
             "risk",
-            "critical stress detected"
+            "stress critically high"
         )
 
-     # anxiety at or above critical threshold
+     # anxiety dangerously high 
     if anxiety >= config.RISK_ANXIETY_THRESHOLD:
         return StateResult(
             "risk",
-            "critical anxiety detected"
+            "anxiety critically high"
         )
 
     # warning conditions
 
-     # sleep inside warning interval
+     # sleep in warning range
     if config.WARNING_SLEEP_MIN <= sleep_hours <= config.WARNING_SLEEP_MAX:
         return StateResult(
             "warning",
-            "elevated sleep level"        
+            "sleep slightly low"        
         )
     
-    # stress inside warning interval
+    # stress in warning range
     if config.WARNING_STRESS_MIN <= stress <= config.WARNING_STRESS_MAX:
         return StateResult(
             "warning",
-            "elevated stress level"
+            "stress elevated"
         )
 
-     # anxiety inside warning interval
+     # anxiety in warning range
     if config.WARNING_ANXIETY_MIN <= anxiety <= config.WARNING_ANXIETY_MAX:
         return StateResult(
             "warning",
-            "elevated anxiety level"
+            "anxiety elevated"
         )
 
     # stable condition
 
     return StateResult(
         "stable",
-        "no thresholds triggered"
+        "all metrics within safe range"
     )

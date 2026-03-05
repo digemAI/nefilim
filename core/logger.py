@@ -4,24 +4,18 @@ import logging
 
 def build_logger(name: str = "nefilim") -> logging.Logger:
     """
-    Creates and configures a logger instance.
-
-    - Prevents duplicate handlers
-    - Sets default level to INFO
-    - Applies consistent console formatting
-
-    Returns:
-        logging.Logger instance
+    Create and configure a logger.
     """
     logger = logging.getLogger(name)
 
-    # Avoid adding multiple handlers if logger already configured
+    # Avoid duplicate handlers
     if logger.handlers:
         return logger
 
     logger.setLevel(logging.INFO)
-    logger.propagate = False  # Prevent duplicate logs in root logger
+    logger.propagate = False  # Stop logs from reaching the root logger
 
+    # Configure console output for logs
     console_handler = logging.StreamHandler()
 
     formatter = logging.Formatter(

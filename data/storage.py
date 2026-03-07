@@ -3,7 +3,7 @@ import os
 from typing import Any, Dict, List
 
 
-def _load_history(path: str) -> List[Dict[str, Any]]:
+def load_history(path: str) -> List[Dict[str, Any]]:
     """
     load history from disk.
     returns an empty list if the file is missing or invalid.
@@ -31,7 +31,7 @@ def append_history(path: str, record: Dict[str, Any]) -> None:
     """
 
     # Load existing history
-    history = _load_history(path)
+    history = load_history(path)
     
     history.append(record)
 

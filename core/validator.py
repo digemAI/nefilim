@@ -5,39 +5,39 @@ from typing import Tuple, List, Any
 
 def _is_number(x: Any) -> bool:
     """
-    Returns True only for int/float values (explicitly excluding bool).
+    Returns True only for int/float values (not bool).
     """
     return isinstance(x, (int, float)) and not isinstance(x, bool)
 
 
-def validate_checkin(checkin_obj) -> Tuple[bool, List[str]]:
+def validate_record(record) -> Tuple[bool, List[str]]:
     """
-    Validates a CheckIn dataclass instance.
+    Validates an input record.
 
-    Performs:
-    - Structural validation (required fields)
-    - Type validation (numeric fields)
-    - Range validation (bounded scales)
-    - Text length constraint
+    Ensures:
+    - Required fields
+    - Numeric values
+    - Allowed ranges
+    - Notes length
 
     Returns:
-        (is_valid, list_of_errors)
+        (is_valid, errors)
     """
     errors: List[str] = []
 
-    # Convert dataclass to dictionary for easier field inspection
+    # Convert dataclass to dict for validation
     try:
-        data = asdict(checkin_obj)
+        data = asdict(record)
     except Exception:
-        return False, ["checkin must be a dataclass instance"]
+        return False, ["input must be a dataclass instance"]
 
-    # Required fields validation
+    # Validate required fields
     required = ["timestamp", "sleep_hours", "mood", "anxiety", "energy", "focus", "notes"]
     for k in required:
         if k not in data:
             errors.append(f"missing field: {k}")
 
-    # Numeric scale validation (0–10 emotional metrics)
+    # Validate emotional metrics (0–10 scale)
     for k in ["mood", "anxiety", "energy", "focus"]:
         if k in data:
             if not _is_number(data[k]):
@@ -45,14 +45,14 @@ def validate_checkin(checkin_obj) -> Tuple[bool, List[str]]:
             elif not (0 <= data[k] <= 10):
                 errors.append(f"{k} out of range (0-10)")
 
-    # Sleep hours sanity check (physiological bounds) 
+    # Validate sleep hours within realistic limits
     if "sleep_hours" in data:
         if not _is_number(data["sleep_hours"]):
             errors.append("sleep_hours must be a number")
         elif not (0 <= data["sleep_hours"] <= 16):
             errors.append("sleep_hours out of range (0-16)")
 
-    # Notes length guard (prevent oversized entries)
+    # Validate notes length
     if "notes" in data and isinstance(data["notes"], str):
         if len(data["notes"]) > 500:
             errors.append("notes too long (max 500 chars)")

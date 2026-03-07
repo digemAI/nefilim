@@ -1,12 +1,22 @@
-# Record structure
+from dataclasses import dataclass
 
-CHECKIN_FIELDS = [
+# Record structure
+REQUIRED_FIELDS = [
     "timestamp",
     "sleep_hours",
-    "stress",
+    "mood",
     "anxiety",
     "energy",
     "focus",
-    "motivation",
-    "state",
+    "notes",
 ]
+
+@dataclass(frozen=True)
+class Record:
+    timestamp: str
+    sleep_hours: float
+    mood: float
+    anxiety: float
+    energy: float
+    focus: float
+    notes: str

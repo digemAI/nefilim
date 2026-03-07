@@ -12,7 +12,7 @@ def main() -> None:
     """
 
     # Temporary test input    
-    sample_checkin = {
+    sample_record = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "sleep_hours": 6.0,
         "stress": 7,
@@ -24,16 +24,16 @@ def main() -> None:
 
     # Detect current state
     result = detect_state(
-        sleep_hours=float(sample_checkin["sleep_hours"]),
-        stress=int(sample_checkin["stress"]),
-        anxiety=int(sample_checkin["anxiety"]),
+        sleep_hours=float(sample_record["sleep_hours"]),
+        stress=int(sample_record["stress"]),
+        anxiety=int(sample_record["anxiety"]),
     )
 
     # Add detected state to the record    
-    sample_checkin["state"] = result.state
+    sample_record["state"] = result.state
 
     # Save the record to the history file
-    append_history(config.HISTORY_FILE_PATH, sample_checkin)
+    append_history(config.HISTORY_FILE_PATH, sample_record)
 
     # v1 verification output
     print("nefilim v1 (test mode)")

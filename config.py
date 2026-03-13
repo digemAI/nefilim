@@ -17,3 +17,24 @@ WARNING_ANXIETY_MAX = 7         # Warning anxiety upper bound
 # History file path
 
 HISTORY_FILE_PATH = "data/nefilim_history.json"
+
+DEFAULT_LOG_PATH = "data/nefilim.log"
+
+# Fields required to build a valid NEFILIM record
+REQUIRED_FIELDS = [
+    "sleep_hours",
+    "mood",
+    "anxiety",
+    "energy",
+    "focus",
+    "notes",
+]
+
+# Valid ranges for the data sent to the detector
+METRIC_RANGES = {
+    "sleep_hours": (0, 24),
+    "mood": (0, 10),
+    "anxiety": (0, 10),
+    "energy": (0, 10),
+    "focus": (0, 10),
+}

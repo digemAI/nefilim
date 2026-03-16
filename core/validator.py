@@ -1,60 +1,45 @@
 from __future__ import annotations
-from dataclasses import asdict
-from typing import Tuple, List, Any
+
+from dataclasses import asdict, is_dataclass
+from config import METRIC_RANGES
+from data.schema import Record
 
 
-def _is_number(x: Any) -> bool:
+def validate_record(record: Record) -> tuple[bool, list[str]]:
     """
-    Returns True only for int/float values (not bool).
+    Validates the current record before state detection.
+    Verifies timestamp, numeric signals, and notes format.
     """
-    return isinstance(x, (int, float)) and not isinstance(x, bool)
+    errors: list[str] = []
 
+    # Stop the flow early if the record is not a dataclass instance
+    if not is_dataclass(record):
+        return False, ["input must be a dataclass record"]
 
-def validate_record(record) -> Tuple[bool, List[str]]:
-    """
-    Validates an input record.
+    # Convert the record into a dictionary for validation
+    record_data = asdict(record)
 
-    Ensures:
-    - Required fields
-    - Numeric values
-    - Allowed ranges
-    - Notes length
+    # Validate timestamp separately before saving to history
+    timestamp = record_data.get("timestamp")
+    if not isinstance(timestamp, str) or not timestamp.strip():
+        errors.append("timestamp must be a non-empty string")
 
-    Returns:
-        (is_valid, errors)
-    """
-    errors: List[str] = []
+    # Review numeric signals using the configured ranges
+    for field, (min_value, max_value) in METRIC_RANGES.items():
+        value = record_data.get(field)
 
-    # Convert dataclass to dict for validation
-    try:
-        data = asdict(record)
-    except Exception:
-        return False, ["input must be a dataclass instance"]
+        if not isinstance(value, (int, float)):
+            errors.append(f"{field} must be numeric")
+            continue
 
-    # Validate required fields
-    required = ["timestamp", "sleep_hours", "mood", "anxiety", "energy", "focus", "notes"]
-    for k in required:
-        if k not in data:
-            errors.append(f"missing field: {k}")
+        if not min_value <= value <= max_value:
+            errors.append(
+                f"{field} must be between {min_value} and {max_value}"
+            )
 
-    # Validate emotional metrics (0–10 scale)
-    for k in ["mood", "anxiety", "energy", "focus"]:
-        if k in data:
-            if not _is_number(data[k]):
-                errors.append(f"{k} must be a number (0-10)")
-            elif not (0 <= data[k] <= 10):
-                errors.append(f"{k} out of range (0-10)")
+    # Verify notes as text data
+    notes = record_data.get("notes")
+    if not isinstance(notes, str):
+        errors.append("notes must be a string")
 
-    # Validate sleep hours within realistic limits
-    if "sleep_hours" in data:
-        if not _is_number(data["sleep_hours"]):
-            errors.append("sleep_hours must be a number")
-        elif not (0 <= data["sleep_hours"] <= 16):
-            errors.append("sleep_hours out of range (0-16)")
-
-    # Validate notes length
-    if "notes" in data and isinstance(data["notes"], str):
-        if len(data["notes"]) > 500:
-            errors.append("notes too long (max 500 chars)")
-
-    return (len(errors) == 0), errors
+    return len(errors) == 0, errors

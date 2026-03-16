@@ -1,69 +1,51 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-import config
+
+from data.schema import Record
+
 
 @dataclass(frozen=True)
 class StateResult:
+    state: str
+    reason: str
+
+
+def detect_state(record: Record) -> StateResult:
     """
-    Result of the state detector.
+    Detects the current state from the input record.
+    Returns the state together with the reason behind it.
     """
-    state: str      # "stable" | "warning" | "risk"
-    reason: str     # short explanation of the decision
+    sleep_hours = record.sleep_hours
+    mood = record.mood
+    anxiety = record.anxiety
+    energy = record.energy
+    focus = record.focus
 
+    # Prioritize the highest-risk combinations first
+    if anxiety >= 8 and focus <= 3:
+        return StateResult("risk", "high anxiety with very low focus")
 
-def detect_state(sleep_hours: float, stress: int, anxiety: int) -> StateResult:
-    """
-    Detect system state from input metrics.
-    """
+    if sleep_hours <= 4 and energy <= 3:
+        return StateResult("risk", "very low sleep with very low energy")
 
-    # risk conditions (highest priority)
+    if mood <= 2 and anxiety >= 7:
+        return StateResult("risk", "very low mood with high anxiety")
 
-    # sleep below safe level
-    if sleep_hours < config.RISK_SLEEP_THRESHOLD:
-        return StateResult(
-            "risk",
-            "sleep critically low"
-        )
+    # Review warning signals before returning a stable state
+    if sleep_hours < 6:
+        return StateResult("warning", "sleep slightly low")
 
-    # stress dangerously high
-    if stress >= config.RISK_STRESS_THRESHOLD:
-        return StateResult(
-            "risk",
-            "stress critically high"
-        )
+    if anxiety >= 6:
+        return StateResult("warning", "anxiety elevated")
 
-     # anxiety dangerously high 
-    if anxiety >= config.RISK_ANXIETY_THRESHOLD:
-        return StateResult(
-            "risk",
-            "anxiety critically high"
-        )
+    if energy <= 4:
+        return StateResult("warning", "energy low")
 
-    # warning conditions
+    if focus <= 4:
+        return StateResult("warning", "focus low")
 
-     # sleep in warning range
-    if config.WARNING_SLEEP_MIN <= sleep_hours <= config.WARNING_SLEEP_MAX:
-        return StateResult(
-            "warning",
-            "sleep slightly low"        
-        )
-    
-    # stress in warning range
-    if config.WARNING_STRESS_MIN <= stress <= config.WARNING_STRESS_MAX:
-        return StateResult(
-            "warning",
-            "stress elevated"
-        )
+    if mood <= 4:
+        return StateResult("warning", "mood slightly low")
 
-     # anxiety in warning range
-    if config.WARNING_ANXIETY_MIN <= anxiety <= config.WARNING_ANXIETY_MAX:
-        return StateResult(
-            "warning",
-            "anxiety elevated"
-        )
-
-    # stable condition
-
-    return StateResult(
-        "stable",
-        "all metrics within safe range"
-    )
+    return StateResult("stable", "metrics look stable")

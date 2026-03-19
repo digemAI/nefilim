@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 venv/
 data/nefilim_history.json
+data/nefilim.log

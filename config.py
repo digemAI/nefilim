@@ -17,6 +17,7 @@ WARNING_ANXIETY_MAX = 7         # Warning anxiety upper bound
 # History file path
 
 HISTORY_FILE_PATH = "data/nefilim_history.json"
+DEFAULT_STORAGE_PATH = HISTORY_FILE_PATH  
 
 DEFAULT_LOG_PATH = "data/nefilim.log"
 

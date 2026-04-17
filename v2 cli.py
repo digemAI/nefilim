@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from core.logger import build_logger
-from core.state_detector import detect_state
+from core.state_detector import analyze_state
 from core.validator import validate_record
 from data.schema import build_record
-from data.storage import append_history
+from data.storage import append_history, load_record_history
 
 log = build_logger()
 
@@ -32,12 +32,12 @@ def prompt_text(message: str, max_len: int = 500) -> str:
 
 def run_cli() -> None:
     """
-    Runs the main NEFILIM CLI flow
-    Shows the detected state and saved path.
+    Runs the main NEFILIM CLI flow.
+    Detects the current state and reviews recent history.
     """
     log.info("NEFILIM CLI - New record")
 
-    # Collect the current user signals
+    # Collect the current input from the user
     sleep_hours = prompt_float("Sleep hours (0-24): ")
     mood = prompt_float("Mood (0-10): ")
     anxiety = prompt_float("Anxiety (0-10): ")
@@ -45,7 +45,7 @@ def run_cli() -> None:
     focus = prompt_float("Focus (0-10): ")
     notes = prompt_text("Notes (optional, max 500 characters): ")
 
-    # Gather the current input from the usert
+    # Build the record for validation and analysis
     record = build_record(
         sleep_hours=sleep_hours,
         mood=mood,
@@ -64,15 +64,27 @@ def run_cli() -> None:
             print(f"- {error}")
         return
 
-    # Detect the current state from the validated record
-    result = detect_state(record)
+    # Run state detection and history analysis
+    history = load_record_history()
+    analysis = analyze_state(record, history)
 
-    # Save the validated record to history
+    # Save the current record to history storage
     saved_path = append_history(record)
 
-    log.info(f"Detected state: {result.state} | reason: {result.reason}")
+    log.info(
+        "Detected state: %s | reason: %s | trend: %s | trend_reason: %s",
+        analysis.state,
+        analysis.reason,
+        analysis.trend,
+        analysis.trend_reason,
+    )
 
+    # Show the final analysis result to the user
     print("\n--- Result ---")
-    print(f"State: {result.state}")
-    print(f"Reason: {result.reason}")
+    print(f"State: {analysis.state}")
+    print(f"Reason: {analysis.reason}")
+    print(f"Trend: {analysis.trend}")
+    print(f"Trend reason: {analysis.trend_reason}")
+    print(f"Recommendation: {analysis.recommendation}")
+    print(f"Recent records used: {analysis.recent_records_used}")
     print(f"Saved to: {saved_path}")

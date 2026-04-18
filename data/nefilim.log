@@ -1,0 +1,3 @@
+2026-04-14 01:43:01,299 | INFO | nefilim | NEFILIM CLI - New record
+2026-04-14 01:43:01,301 | INFO | nefilim | Record appended successfully to data/nefilim_history.json
+2026-04-14 01:43:01,301 | INFO | nefilim | Detected state: stable | reason: metrics look stable | trend: no_history_yet | trend_reason: first record stored, trend still unavailable

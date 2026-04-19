@@ -80,10 +80,12 @@ def run_cli() -> None:
     )
 
     # Show the final analysis result to the user
+    formatted_trend = analysis.trend.replace("_", " ")
+
     print("\n--- Result ---")
     print(f"State: {analysis.state}")
     print(f"Reason: {analysis.reason}")
-    print(f"Trend: {analysis.trend}")
+    print(f"Trend: {formatted_trend}")
     print(f"Trend reason: {analysis.trend_reason}")
     print(f"Recommendation: {analysis.recommendation}")
     print(f"Recent records used: {analysis.recent_records_used}")

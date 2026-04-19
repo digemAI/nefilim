@@ -14,8 +14,8 @@ log = build_logger()
 
 def load_history(path: str = DEFAULT_STORAGE_PATH) -> list[dict[str, Any]]:
     """
-    Loads the stored history from the history file.
-    Returns an empty list when the file is missing or unreadable.
+    Loads the stored history from disk.
+    Returns an empty list if the file is missing or unreadable.
     """
     file_path = Path(path)
 
@@ -23,6 +23,7 @@ def load_history(path: str = DEFAULT_STORAGE_PATH) -> list[dict[str, Any]]:
         return []
 
     try:
+        # Read and parse the stored history
         with file_path.open("r", encoding="utf-8") as file:
             content = file.read().strip()
 
@@ -47,15 +48,18 @@ def load_history(path: str = DEFAULT_STORAGE_PATH) -> list[dict[str, Any]]:
 def load_record_history(path: str = DEFAULT_STORAGE_PATH) -> list[Record]:
     """
     Loads history and keeps only valid records.
-    Invalid items are ignored so the analysis can continue.
     """
     records: list[Record] = []
+
+    # Convert history items into Record objects
     for item in load_history(path):
         if not isinstance(item, dict):
             continue
+
         record = record_from_dict(item)
         if record is not None:
             records.append(record)
+
     return records
 
 
@@ -64,13 +68,13 @@ def save_history(
     path: str = DEFAULT_STORAGE_PATH,
 ) -> str:
     """
-    Writes the current history to the storage file.
-    Creates the storage path before saving.
+    Saves the current history to disk.
     """
     file_path = Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
+        # Write the full history to the storage path
         with file_path.open("w", encoding="utf-8") as file:
             json.dump(history, file, indent=2, ensure_ascii=False)
         return str(file_path)
@@ -81,12 +85,12 @@ def save_history(
 
 def append_history(record: Record, path: str = DEFAULT_STORAGE_PATH) -> str:
     """
-    Appends the current record to stored history.
-    Prepares the record before saving it to file.
+    Appends a record to stored history.
     """
     if not is_dataclass(record):
         raise TypeError("input must be a dataclass record")
 
+    # Add the new record to the stored history
     history = load_history(path)
     history.append(asdict(record))
     saved_path = save_history(history, path)

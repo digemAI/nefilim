@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 
 
+# Required fields for a valid NEFILIM record
 REQUIRED_FIELDS = [
     "timestamp",
     "sleep_hours",
@@ -18,6 +19,9 @@ REQUIRED_FIELDS = [
 
 @dataclass(frozen=True)
 class Record:
+    """
+    Represents one NEFILIM record.    
+    """
     timestamp: str
     sleep_hours: float
     mood: float
@@ -29,6 +33,9 @@ class Record:
 
 @dataclass(frozen=True)
 class AnalysisResult:
+    """
+    Output of state and trend analysis.    
+    """
     state: str
     reason: str
     trend: str
@@ -46,8 +53,8 @@ def build_record(
     notes: str,
 ) -> Record:
     """
-    Builds the current record from CLI input.
-    Adds a timestamp before storing it in history.
+    Builds a record from the current input
+    Adds a timestamp for the current session.
     """
     return Record(
         timestamp=datetime.now().isoformat(timespec="seconds"),
@@ -62,10 +69,11 @@ def build_record(
 
 def record_from_dict(data: dict[str, Any]) -> Record | None:
     """
-    Converts a history item into a Record when possible.
-    Returns None when the structure is incomplete or invalid.
+    Converts a dictionary into a Record.
+    Returns None if the data is invalid.
     """
     try:
+        # Convert raw data into a Record
         return Record(
             timestamp=str(data["timestamp"]),
             sleep_hours=float(data["sleep_hours"]),
@@ -76,4 +84,5 @@ def record_from_dict(data: dict[str, Any]) -> Record | None:
             notes=str(data.get("notes", "")),
         )
     except (KeyError, TypeError, ValueError):
+        # Ignore invalid or corrupted data
         return None

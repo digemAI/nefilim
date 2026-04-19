@@ -31,12 +31,5 @@ def build_logger() -> logging.Logger:
     # Write logs to file
     file_handler = logging.FileHandler(log_path, encoding="utf-8")
     file_handler.setFormatter(formatter)
-
-    # Send logs to console during execution
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-
     logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
-
     return logger

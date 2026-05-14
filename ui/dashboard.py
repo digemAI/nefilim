@@ -41,6 +41,17 @@ st.markdown(
         margin-bottom: 18px;
     }
 
+    .reason-box {
+    background-color: #17324a;
+    color: #4da3ff;
+    font-size: 18px;
+    padding: 18px 24px;
+    border-radius: 8px;
+    margin-top: 12px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
     div[data-testid="stAlert"] {
         font-size: 18px;
     }
@@ -108,7 +119,17 @@ with col6:
 
 
 # Show the main reason behind the latest state
-st.info(f"Reason: {latest_state.reason}")
+st.markdown(
+    f"""
+    <div class="reason-box">
+        <strong>Reason:</strong> {latest_state.reason}
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+                ### st.info(f"Reason: {latest_state.reason}")
 
 # Show the latest notes if available
 notes = latest.get("notes", "")
@@ -124,6 +145,30 @@ else:
         unsafe_allow_html=True,
     )
 
+# Build a recent summary from the latest records
+recent_df = df.tail(7).copy()
+
+st.subheader("Recent summary")
+
+summary_col1, summary_col2, summary_col3, summary_col4, summary_col5, summary_col6 = st.columns(6)
+
+with summary_col1:
+    st.metric("Records used", len(recent_df))
+
+with summary_col2:
+    st.metric("Avg sleep", round(recent_df["sleep_hours"].mean(), 2))
+
+with summary_col3:
+    st.metric("Avg mood", round(recent_df["mood"].mean(), 2))
+
+with summary_col4:
+    st.metric("Avg anxiety", round(recent_df["anxiety"].mean(), 2))
+
+with summary_col5:
+    st.metric("Avg energy", round(recent_df["energy"].mean(), 2))
+
+with summary_col6:
+    st.metric("Avg focus", round(recent_df["focus"].mean(), 2))
 
 # Prepare history data for visible trend charts
 trend_df = df.copy()

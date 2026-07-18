@@ -7,16 +7,6 @@ METRIC_RANGES = {
     "focus": (0, 10),
 }
 
-# Fields required to build a valid NEFILIM record
-REQUIRED_FIELDS = [
-    "sleep_hours",
-    "mood",
-    "anxiety",
-    "energy",
-    "focus",
-    "notes",
-]
-
 # Risk triggers for the current state
 RISK_ANXIETY_THRESHOLD = 8
 RISK_FOCUS_THRESHOLD = 3

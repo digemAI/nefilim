@@ -129,8 +129,6 @@ st.markdown(
 )
 
 
-                ### st.info(f"Reason: {latest_state.reason}")
-
 # Show the latest notes if available
 notes = latest.get("notes", "")
 

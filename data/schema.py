@@ -5,18 +5,6 @@ from datetime import datetime
 from typing import Any
 
 
-# Required fields for a valid NEFILIM record
-REQUIRED_FIELDS = [
-    "timestamp",
-    "sleep_hours",
-    "mood",
-    "anxiety",
-    "energy",
-    "focus",
-    "notes",
-]
-
-
 @dataclass(frozen=True)
 class Record:
     """
